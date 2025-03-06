@@ -1,15 +1,15 @@
 import axios from 'axios';
 
-// Sử dụng namespace Axios để truy cập các type
-const apiClient: axios.AxiosInstance = axios.create({
-  baseURL: 'http://dev.xacthucso.com.vn',
+// Không cần khai báo AxiosInstance riêng, axios.create() tự động trả về type đúng
+const apiClient = axios.create({
+  baseURL: 'http://dev.xacthucso.com.vn', // Thay bằng URL API thực tế khi có
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// Interceptor để thêm Bearer Token
-apiClient.interceptors.request.use((config: axios.AxiosRequestConfig<any>) => {
+// Thêm Bearer Token vào mỗi request
+apiClient.interceptors.request.use((config) => {
   const token = localStorage.getItem('accessToken');
   if (token) {
     config.headers = config.headers || {};
@@ -18,11 +18,11 @@ apiClient.interceptors.request.use((config: axios.AxiosRequestConfig<any>) => {
   return config;
 });
 
-// Interceptor để làm mới token khi hết hạn
+// Làm mới token khi hết hạn
 apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
-    const originalRequest = error.config as axios.AxiosRequestConfig<any> & { _retry?: boolean };
+    const originalRequest = error.config as typeof error.config & { _retry?: boolean };
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       const refreshToken = localStorage.getItem('refreshToken');

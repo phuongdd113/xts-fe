@@ -18,7 +18,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
     <AntLayout style={{ minHeight: '100vh' }}>
       <Sider>
-        <Menu theme="dark" mode="inline">
+        <Menu theme="dark" mode="inline" defaultSelectedKeys={['1']}>
           <Menu.Item key="1">Dashboard</Menu.Item>
           <Menu.Item key="2">Doanh nghiệp</Menu.Item>
           <Menu.Item key="3">Sản phẩm</Menu.Item>
@@ -27,7 +27,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       </Sider>
       <AntLayout>
         <Header style={{ background: '#fff', padding: 0 }}>
-          <div style={{ float: 'right', marginRight: 20 }}>
+          <div style={{ float: 'right', marginRight: '20px' }}>
             <a onClick={handleLogout}>Đăng xuất</a>
           </div>
         </Header>

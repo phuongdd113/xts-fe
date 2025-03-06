@@ -12,7 +12,10 @@ const LoginPage: React.FC = () => {
   const onFinish = async (values: { identifier: string; password: string }) => {
     try {
       const response = await loginWithPassword(values);
-      dispatch(login(response));
+      dispatch(login({
+        accessToken: response.accessToken,
+        refreshToken: response.refreshToken,
+      }));
       message.success('Đăng nhập thành công!');
       navigate('/');
     } catch (error) {
@@ -23,7 +26,7 @@ const LoginPage: React.FC = () => {
   return (
     <div style={{ padding: '50px', textAlign: 'center' }}>
       <h1>XTS Product Traceability</h1>
-      <Form onFinish={onFinish} layout="vertical" style={{ maxWidth: 300, margin: '0 auto' }}>
+      <Form onFinish={onFinish} layout="vertical" style={{ maxWidth: '300px', margin: '0 auto' }}>
         <Form.Item
           name="identifier"
           label="Email hoặc SĐT"
