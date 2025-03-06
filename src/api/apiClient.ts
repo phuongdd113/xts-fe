@@ -1,35 +1,44 @@
-import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
+import axios from 'axios';
 
-const apiClient: AxiosInstance = axios.create({
-  baseURL: 'http://your-api-base-url', // Thay bằng URL API thực tế của bạn
+// Sử dụng namespace Axios để truy cập các type
+const apiClient: axios.AxiosInstance = axios.create({
+  baseURL: 'http://dev.xacthucso.com.vn',
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-apiClient.interceptors.request.use((config: AxiosRequestConfig) => {
+// Interceptor để thêm Bearer Token
+apiClient.interceptors.request.use((config: axios.AxiosRequestConfig<any>) => {
   const token = localStorage.getItem('accessToken');
-  if (token && config.headers) {
+  if (token) {
+    config.headers = config.headers || {};
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
 });
 
+// Interceptor để làm mới token khi hết hạn
 apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
-    const originalRequest = error.config;
+    const originalRequest = error.config as axios.AxiosRequestConfig<any> & { _retry?: boolean };
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       const refreshToken = localStorage.getItem('refreshToken');
-      const { data } = await axios.get('/api/auth/refresh', {
-        baseURL: 'http://your-api-base-url',
-        headers: { Authorization: `Bearer ${refreshToken}` },
-      });
-      localStorage.setItem('accessToken', data.data.accessToken);
-      localStorage.setItem('refreshToken', data.data.refreshToken);
-      originalRequest.headers.Authorization = `Bearer ${data.data.accessToken}`;
-      return apiClient(originalRequest);
+      try {
+        const { data } = await axios.get('/api/auth/refresh', {
+          baseURL: 'http://dev.xacthucso.com.vn',
+          headers: { Authorization: `Bearer ${refreshToken}` },
+        });
+        localStorage.setItem('accessToken', data.data.accessToken);
+        localStorage.setItem('refreshToken', data.data.refreshToken);
+        originalRequest.headers = originalRequest.headers || {};
+        originalRequest.headers.Authorization = `Bearer ${data.data.accessToken}`;
+        return apiClient(originalRequest);
+      } catch (refreshError) {
+        return Promise.reject(refreshError);
+      }
     }
     return Promise.reject(error);
   }
